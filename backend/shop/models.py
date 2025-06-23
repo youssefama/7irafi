@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -13,6 +14,7 @@ class Region(models.Model):
         return self.name
 
 class Artisan(models.Model):
+    user            = models.OneToOneField(User, on_delete=models.CASCADE, related_name='artisan_profile', null=True, blank=True)
     name            = models.CharField(max_length=150)
     biography       = models.TextField()
     region          = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, related_name='artisans')
