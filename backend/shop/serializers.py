@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Category, Region, Artisan, Product, ContactMessage
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,3 +94,15 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         model  = ContactMessage
         fields = ['id', 'name', 'email', 'message', 'submitted_at']
         read_only_fields = ['submitted_at']
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        try:
+            artisan = self.user.artisan_profile  # ✅ Use correct related_name
+            data['artisan'] = ArtisanSerializer(artisan).data
+        except Artisan.DoesNotExist:
+            data['artisan'] = None
+
+        return data

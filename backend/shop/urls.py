@@ -6,6 +6,7 @@ from .views import (
     ContactMessageViewSet, ArtisanRegistrationView,
     ArtisanLoginView, ArtisanTokenRefreshView
 )
+from .views import CustomTokenObtainPairView
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet,     basename='category')
@@ -16,7 +17,7 @@ router.register(r'contact',    ContactMessageViewSet, basename='contact')
 
 urlpatterns = [
     path('api/auth/register/', ArtisanRegistrationView.as_view(), name='artisan-register'),
-    path('api/auth/login/',    ArtisanLoginView.as_view(),        name='token_obtain_pair'),
+    path('api/auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/',  ArtisanTokenRefreshView.as_view(), name='token_refresh'),
     path('api/', include(router.urls)),
 ]
