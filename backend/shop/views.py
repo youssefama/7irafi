@@ -1,11 +1,13 @@
 from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
+from rest_framework import generics, permissions
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .models import Category, Region, Artisan, Product, ContactMessage
 from .serializers import (
     CategorySerializer, RegionSerializer,
     ArtisanSerializer, ProductSerializer,
-    ContactMessageSerializer
+    ContactMessageSerializer, ArtisanRegistrationSerializer
 )
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -43,3 +45,14 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
             {"status": "success", "data": serializer.data},
             status=status.HTTP_201_CREATED
         )
+
+class ArtisanRegistrationView(generics.CreateAPIView):
+    serializer_class    = ArtisanRegistrationSerializer
+    permission_classes  = [permissions.AllowAny]
+
+# You can use the built-in JWT views for login & refresh:
+class ArtisanLoginView(TokenObtainPairView):
+    permission_classes = [permissions.AllowAny]
+
+class ArtisanTokenRefreshView(TokenRefreshView):
+    permission_classes = [permissions.AllowAny]

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Category, Region, Artisan, Product, ContactMessage
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -10,6 +11,36 @@ class RegionSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Region
         fields = ['id', 'name']
+
+
+class ArtisanRegistrationSerializer(serializers.ModelSerializer):
+    # accept credentials + artisan fields
+    username     = serializers.CharField(write_only=True)
+    password     = serializers.CharField(write_only=True, min_length=8)
+    region_id    = serializers.PrimaryKeyRelatedField(
+                       queryset=Region.objects.all(),
+                       source='region',
+                       write_only=True,
+                   )
+    main_image   = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model  = Artisan
+        fields = ['username','password','name','biography','region_id','main_image']
+
+    def create(self, validated_data):
+        user_data = {
+            'username': validated_data.pop('username'),
+        }
+        password = validated_data.pop('password')
+        user = User.objects.create(**user_data)
+        user.set_password(password)
+        user.save()
+
+        # use the remaining data (name, biography, region, main_image)
+        artisan = Artisan.objects.create(user=user, **validated_data)
+        return artisan
+
 
 class ArtisanSerializer(serializers.ModelSerializer):
     # nested read-only region
